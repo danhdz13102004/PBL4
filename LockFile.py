@@ -5,7 +5,6 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 import argparse
 
-from ransomware import load_salt
 
 
 class LockFile:
@@ -76,7 +75,7 @@ class LockFile:
                 self.decrypt_folder(child, key)
 
     def solve(self,password, option, path):
-        salt = load_salt()
+        salt = self.load_salt()
         if salt:
            key = self.generate_key(password,load_existing_salt=True)
         else:

