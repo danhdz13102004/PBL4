@@ -1,9 +1,8 @@
-from lib2to3.fixes.fix_input import context
-
 from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtCore import QFileSystemWatcher
 from PyQt6.QtGui import QFont, QTextBlockFormat, QTextCursor
 from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtGui import QTextCursor
 
 
 class MainWindow(QMainWindow):
@@ -14,9 +13,6 @@ class MainWindow(QMainWindow):
         self.setObjectName(f"Keylog")
         self.resize(800, 600)
         self.filename = name
-        self.watcher = QFileSystemWatcher(self)
-        self.watcher.addPath(self.filename)
-        self.watcher.fileChanged.connect(self.on_file_changed)
 
         # Create central widget
         self.centralwidget = QtWidgets.QWidget(self)
@@ -57,18 +53,12 @@ class MainWindow(QMainWindow):
                 self.textEdit.append(content)
         except Exception:
                 self.textEdit.setText("")
+    def addLine(self,line):
+        self.textEdit.append(line)
+        cursor = self.textEdit.textCursor()
+        cursor.movePosition(QTextCursor.MoveOperation.End)
+        self.textEdit.setTextCursor(cursor)
 
-    def on_file_changed(self, path):
-        """Append new content when the file is changed."""
-        try:
-            with open(self.filename, 'r',encoding='utf-8') as file:
-                content = file.read()
-
-            # Clear the QTextEdit and set the new content
-            self.textEdit.setText(content)
-        except FileNotFoundError:
-            # Handle case where the file is deleted or missing
-            self.textEdit.append("File not found or deleted")
 
     def set_line_spacing(self, line_spacing_factor):
         """Set custom line spacing in QTextEdit."""
@@ -89,4 +79,5 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow("LAPTOP-4USQKFOM.txt")
     window.show()
+    window.readfile()
     sys.exit(app.exec())
