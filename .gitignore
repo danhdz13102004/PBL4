@@ -1,0 +1,19 @@
+# Ignore Python bytecode
+__pycache__/
+
+# Ignore môi trường ảo (nếu có)
+.venv/
+
+# Ignore thư mục logs (nếu không cần thiết)
+logs/
+
+# Ignore các tệp tạo tự động hoặc các tệp không cần thiết khác
+generated-files/
+storage.txt
+
+# Ignore các thư mục hoặc tệp chứa thông tin nhạy cảm
+*.pyc
+*.pyo
+
+# Ignore các tệp hoặc thư mục khác tùy theo nhu cầu
+*.log
