@@ -5,6 +5,7 @@ import threading
 BUFFER_SIZE = 1024 * 128
 SEPARATOR = "<sep>"
 
+
 class Client:
     def __init__(self,id_client,ui):
         self.id = id_client

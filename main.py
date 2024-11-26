@@ -1,7 +1,12 @@
 ########################################################################
 ## IMPORTS
+
 ########################################################################
 import sys
+from PySide6.QtCore import QPoint, Qt
+from PySide6.QtWidgets import QMenu
+from lxml.html.builder import SELECT
+from src.server_handler import Server_Handler
 ########################################################################
 ## IMPORT GUI FILE
 ########################################################################
@@ -28,6 +33,7 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
         ########################################################################
         ## APPLY JSON STYLESHEET
         ########################################################################
@@ -60,14 +66,18 @@ class MainWindow(QMainWindow):
         ## APPLY SOME OTHER CONFIG TO WINDOW 
         ########################################################################
         self.app_functions = GUI_Functions(self)
-        
-        self.server_functions = Server_Functions(self)
+
+        self.server = Server_Handler(self)
+        # server.add_client_to_tree()
+
 
     ########################################################################
     ## GET THE THEME CHANGE PROGRESS
     ########################################################################
     def sassCompilationProgress(self, n):
         self.ui.themeProgress.setValue(n)
+
+
 ########################################################################
 ## EXECUTE APP
 ########################################################################

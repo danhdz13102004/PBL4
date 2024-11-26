@@ -1,7 +1,7 @@
 {
   "ShowLogs": true,
   "LiveCompileQss": true,
-  "CheckForMissingicons": false,
+  "CheckForMissingicons": true,
   "QMainWindow": [
     {
       "title": "Server",

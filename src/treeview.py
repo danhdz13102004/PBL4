@@ -1,9 +1,10 @@
 import sys
 import socket
 import json
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTreeView, QVBoxLayout, QWidget, QMenu
-from PyQt6.QtGui import QStandardItemModel, QStandardItem, QIcon, QAction
-from PyQt6.QtCore import pyqtSignal, Qt, QPoint
+from PySide6.QtWidgets import QApplication, QMainWindow, QTreeView, QVBoxLayout, QWidget, QMenu
+from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon, QAction
+from PySide6.QtCore import Qt, QPoint
+
 SEPARATOR = "<sep>"
 
 class FileManagerServer(QMainWindow):
@@ -26,16 +27,14 @@ class FileManagerServer(QMainWindow):
         self.folder_icon = QIcon.fromTheme("folder")
         self.file_icon = QIcon.fromTheme("text-x-generic")
 
-        self.tree_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree_view.customContextMenuRequested.connect(self.show_context_menu)
 
         self.socket = None
 
-
-
     def setup_server(self):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.bind(('localhost', 12345))
+        self.server_socket.bind(("localhost", 12345))
         self.server_socket.listen(1)
 
         print("Server listening on localhost:12345")
@@ -74,7 +73,6 @@ class FileManagerServer(QMainWindow):
                 item = QStandardItem(self.file_icon, name)
                 parent.appendRow(item)
 
-
     def show_context_menu(self, position: QPoint):
         # Get the item under the cursor
         index = self.tree_view.indexAt(position)
@@ -105,9 +103,6 @@ class FileManagerServer(QMainWindow):
         # Show the menu at the position where the right-click happened
         menu.exec(self.tree_view.viewport().mapToGlobal(position))
 
-    def handling_item(self,item):
-        print(item.text())
-
     def get_full_path(self, item):
         path = []
         while item is not None:
@@ -115,18 +110,24 @@ class FileManagerServer(QMainWindow):
             item = item.parent()  # Move to the parent
         return "/".join(path)  # Join to create the full path
 
-    def download(self,item):
+    def download(self, item):
         full_path = self.get_full_path(item)
         self.socket.send(f"download{SEPARATOR}{full_path}".encode())
-        print(full_path)
+        print(f"Download requested for: {full_path}")
 
-    def encrypt(self,item):
+    def encrypt(self, item):
         full_path = self.get_full_path(item)
         self.socket.send(f"en{SEPARATOR}{full_path}".encode())
-        print(f"en {item.text()}")
+        print(f"Encrypt requested for: {item.text()}")
 
-    def decrypt(self,item):
+    def decrypt(self, item):
         full_path = self.get_full_path(item)
         self.socket.send(f"de{SEPARATOR}{full_path}".encode())
-        print(f"de {item.text()}")
+        print(f"Decrypt requested for: {item.text()}")
 
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = FileManagerServer()
+    window.show()
+    sys.exit(app.exec())

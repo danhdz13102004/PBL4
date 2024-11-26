@@ -18,7 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QFormLayout, QFrame,
     QGridLayout, QHBoxLayout, QHeaderView, QLabel,
     QMainWindow, QProgressBar, QPushButton, QSizePolicy,
-    QStackedWidget, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QStackedWidget, QTableWidget, QTableWidgetItem, QVBoxLayout,
     QWidget)
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -286,11 +286,22 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addWidget(self.pageTitle)
 
-        self.treeWidget = QTreeWidget(self.manageClientsPage)
-        self.treeWidget.setObjectName(u"treeWidget")
-        self.treeWidget.header().setDefaultSectionSize(170)
+        self.tableWidget = QTableWidget(self.manageClientsPage)
+        if (self.tableWidget.columnCount() < 4):
+            self.tableWidget.setColumnCount(4)
+        __qtablewidgetitem = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
+        __qtablewidgetitem1 = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(1, __qtablewidgetitem1)
+        __qtablewidgetitem2 = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(2, __qtablewidgetitem2)
+        __qtablewidgetitem3 = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(3, __qtablewidgetitem3)
+        self.tableWidget.setObjectName(u"tableWidget")
+        self.tableWidget.horizontalHeader().setMinimumSectionSize(150)
+        self.tableWidget.horizontalHeader().setStretchLastSection(True)
 
-        self.verticalLayout_8.addWidget(self.treeWidget)
+        self.verticalLayout_8.addWidget(self.tableWidget)
 
         self.stackedWidget.addWidget(self.manageClientsPage)
         self.showSystemInfoPage = QWidget()
@@ -409,7 +420,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(4)
+        self.stackedWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -431,11 +442,14 @@ class Ui_MainWindow(object):
         self.restoreAppBtn.setText("")
         self.closeAppBtn.setText("")
         self.pageTitle.setText(QCoreApplication.translate("MainWindow", u"Danh s\u00e1ch client k\u1ebft n\u1ed1i", None))
-        ___qtreewidgetitem = self.treeWidget.headerItem()
-        ___qtreewidgetitem.setText(3, QCoreApplication.translate("MainWindow", u"Status", None));
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("MainWindow", u"Country", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("MainWindow", u"User@PC", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("MainWindow", u"IP", None));
+        ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
+        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"IP", None));
+        ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"User@PC", None));
+        ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(2)
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Country", None));
+        ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(3)
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Status", None));
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Show system Page", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Select Theme", None))
         self.creditLabel.setText(QCoreApplication.translate("MainWindow", u"PBL4", None))

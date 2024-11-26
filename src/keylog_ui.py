@@ -1,16 +1,14 @@
-from PyQt6 import QtCore, QtWidgets
-from PyQt6.QtCore import QFileSystemWatcher
-from PyQt6.QtGui import QFont, QTextBlockFormat, QTextCursor
-from PyQt6.QtWidgets import QMainWindow
-from PyQt6.QtGui import QTextCursor
-
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtCore import QFileSystemWatcher
+from PySide6.QtGui import QFont, QTextBlockFormat, QTextCursor
+from PySide6.QtWidgets import QMainWindow
 
 class MainWindow(QMainWindow):
-    def __init__(self,name = ""):
+    def __init__(self, name=""):
         super(MainWindow, self).__init__()
 
         # Set up the main window
-        self.setObjectName(f"Keylog")
+        self.setObjectName("Keylog")
         self.resize(800, 600)
         self.filename = name
 
@@ -19,19 +17,19 @@ class MainWindow(QMainWindow):
         self.centralwidget.setObjectName("centralwidget")
         self.setCentralWidget(self.centralwidget)
 
-
-
         # Create QTextEdit
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setGeometry(QtCore.QRect(0, 10, 791, 571))
         self.textEdit.setObjectName("textEdit")
         self.textEdit.setReadOnly(True)
-        # self.textEdit.
+
+        # Set font
         font = QFont()
         font.setFamily("Arial")  # Font family
         font.setPointSize(12)  # Font size
         self.textEdit.setFont(font)
         self.set_line_spacing(1.5)
+
         # Create menubar
         self.menubar = QtWidgets.QMenuBar(self)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
@@ -45,20 +43,21 @@ class MainWindow(QMainWindow):
 
         # Set window title
         self.setWindowTitle("MainWindow")
+
     def readfile(self):
         try:
             if self.filename:
-                with open(self.filename,'r',encoding='utf-8') as file:
+                with open(self.filename, 'r', encoding='utf-8') as file:
                     content = file.read()
                 self.textEdit.append(content)
         except Exception:
-                self.textEdit.setText("")
-    def addLine(self,line):
+            self.textEdit.setText("")
+
+    def addLine(self, line):
         self.textEdit.append(line)
         cursor = self.textEdit.textCursor()
-        cursor.movePosition(QTextCursor.MoveOperation.End)
+        cursor.movePosition(QTextCursor.End)
         self.textEdit.setTextCursor(cursor)
-
 
     def set_line_spacing(self, line_spacing_factor):
         """Set custom line spacing in QTextEdit."""
@@ -66,10 +65,10 @@ class MainWindow(QMainWindow):
         block_format = QTextBlockFormat()
 
         # Set line height (1.0 is normal, values above 1 increase spacing)
-        block_format.setLineHeight(line_spacing_factor * 100, 1)
+        block_format.setLineHeight(line_spacing_factor * 100, QTextBlockFormat.ProportionalHeight)
 
         # Apply block format to all content
-        cursor.select(QTextCursor.SelectionType.Document)
+        cursor.select(QTextCursor.Document)
         cursor.setBlockFormat(block_format)
         cursor.clearSelection()
 
