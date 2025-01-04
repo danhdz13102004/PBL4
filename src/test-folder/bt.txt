@@ -1,0 +1,56 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+char a[500][500];
+int b[500];
+bool cmp(int n,int m,int i) {
+	int k;
+	for(k=1;k<i;k++) {
+		if(a[n][k]!=a[m][k]) return false;
+	}
+	return true;
+}
+int main() {
+    char ch;
+    FILE *fin,*fout;
+    fin = fopen("dulieu.txt", "r");
+    fout = fopen("output.txt", "w");
+
+    if (fin == NULL || fout==NULL) {
+        printf("Khong the mo file\n");
+        return 1;
+    }
+    fputs("So luong tu khac nhau la: \n",fout);
+	int idx=1,i=1,j;
+	char tmp;
+    while ((ch = fgetc(fin)) != EOF) {
+    	tmp=ch;
+		if(isalpha(ch)) {
+			ch=tolower(ch);
+			a[idx][i++]=ch;
+		}
+		else {
+			b[idx]=i;
+			i=1;
+			idx++;  
+		}
+	}
+	b[idx]=i;
+	if(isalpha(tmp)) idx++;
+	int dem=1;
+	for(i=2;i<idx;i++) {
+		int ok=0;
+		for(j=1;j<i;j++) {
+			if(b[j]==b[i]) {
+				if(cmp(j,i,b[j])) {
+					ok=1;
+					break;
+				}
+			}
+			if(j==i-1) dem++;
+		}
+	}
+	fprintf(fout, "%d\n",dem);
+
+    return 0;
+}

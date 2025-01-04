@@ -1,0 +1,68 @@
+
+//===================================================//
+// FILE AUTO-GENERATED. PUT YOUR DEFAULT STYLES HERE. 
+// THESE STYLES WILL OVERIDE THE THEME STYLES
+//====================================================//
+
+//===================================================//
+// END //
+//====================================================//
+
+* {
+    font-family: 'sans serif';
+}
+QPushButton, QLineEdit, QDateEdit{
+    border-radius: 5px;
+}
+
+#topMenu, #bottomMenu {
+    background-color: transparent;
+    outline: none;
+    border: none;
+}
+
+#topMenu QPushButton, #bottomMenu QPushButton {
+    background-position: left center;
+    background-repeat: no-repeat;
+    border: none;
+    background-color: $COLOR_BACKGROUND_1;
+    text-align: left;
+    padding-left: 16px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    // Hover state
+    &:hover {
+        background-color: $COLOR_BACKGROUND_4;
+    }
+
+    &[active="true"] {
+        background-color: $COLOR_BACKGROUND_3;
+        color: $COLOR_TEXT_2;
+        font-weight: 500;
+        border-left: 2.5px solid $COLOR_ACCENT_1;
+    }
+}
+
+#closeAppBtn {
+    min-width: 30px;
+    
+    &:hover {
+        color: $COLOR_BACKGROUND_2;
+    }
+
+    &[active="true"] {
+        background-color: rgb(246, 116, 116);
+        color: $COLOR_TEXT_1;
+    }
+}
+
+#sidebarWidget {
+    background-color: $COLOR_BACKGROUND_1;
+    padding: 10px;
+}
+
+#mainSBWidget, #topSBWidget {
+    background-color: transparent;
+    outline: none;
+    border: none;
+}

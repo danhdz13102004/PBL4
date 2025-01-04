@@ -1,0 +1,82 @@
+"frameless": true,
+"transluscentBg": true,
+"sizeGrip": "sizeGrip",
+"shadow":[
+    {
+        "color": "#fff",
+        "blurRadius": 20,
+        "xOffset": 0,
+        "yOffset": 0,
+        "centralWidget": "styleSheet"
+    }
+],
+"navigation":[
+    {
+        "minimize":"minimizeAppBtn",
+        "close": "closeAppBtn",
+        "restore":[
+            {
+                "buttonName": "restoreAppBtn",
+                "normalIcon": ":/material_design/icons/material_design/zoom_out_map.png",
+                "maximizedIcon": ":/material_design/icons/material_design/zoom_in_map.png"
+            }
+        ],
+        "moveWindow": "titleBarWidget",
+        "tittleBar": "titleBarWidget"
+    }
+]
+
+
+"QPushButtonGroup": [
+	  {
+      "Buttons": [
+        "manageClientsBtn",
+        "showSystemInfoBtn",
+        "viewLocationBtn"
+      ],
+      "ActiveButton": "manageClientsBtn",
+      "Style": [
+        {
+          "Active": "QPushButton{background-color: THEME.COLOR_BACKGROUND_2; font-weight: bold;}",
+          "NotActive": "QPushButton{background-color: transparent; font-weight: normal;}"
+        }
+      ]
+	  },
+    {
+      "Buttons": [
+        "settingsBtn",
+        "helpBtn"
+      ],
+      "ActiveButton": "helpBtn",
+      "Style": [
+        {
+          "Active": "QPushButton{background-color: THEME.COLOR_ACCENT_1; font-weight: bold; border-top: 6px solid $COLOR_BACKGROUND_3; border-left: 6px solid $COLOR_BACKGROUND_3;border-bottom: 6px solid $COLOR_BACKGROUND_3;}",
+			    "NotActive": "QPushButton{background-color: transparent; font-weight: normal; border-top: 6px solid transparent; border-left: 6px solid transparent;border-bottom: 6px solid transparent;}"
+        }
+      ]
+	  },
+    {
+      "Buttons": [
+        "settingsAppBtn",
+        "minimizeAppBtn",
+        "restoreAppBtn"
+      ],
+      "Style": [
+        {
+          "Active": "QPushButton{background-color: THEME.COLOR_BACKGROUND_2; font-weight: bold;}",
+          "NotActive": "QPushButton{background-color: transparent; font-weight: normal;}"
+        }
+      ]
+    },
+    {
+      "Buttons": [
+        "closeAppBtn"
+      ],
+      "Style": [
+        {
+          "Active": "QPushButton{background-color: THEME.COLOR_BACKGROUND_2; font-weight: bold;}",
+          "NotActive": "QPushButton{background-color: transparent; font-weight: normal;}"
+        }
+      ]
+    }
+	],

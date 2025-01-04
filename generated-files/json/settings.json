@@ -1,0 +1,16 @@
+{
+  "QPushButton": [
+    {
+      "name": "minimizeAppBtn",
+      "icon": "Qss/icons/icons/feather/minus.png"
+    },
+    {
+      "name": "maximizeAppBtn",
+      "icon": "Qss/icons/icons/feather/maximize.png"
+    },
+    {
+      "name": "closeAppBtn",
+      "icon": "Qss/icons/icons/feather/window_close.png"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "ShowLogs": true,
+  "LiveCompileQss": true,
+  "CheckForMissingicons": false,
+  "QMainWindow": [
+    {
+      "title": "Server",
+      "icon": "D:/PBL4/Keylogger/server/Qss/icons/Icons/font_awesome/brands/python.png",
+      "frameless": true
+    }
+  ],
+  "QSettings": [
+    {
+      "ThemeSettings": [
+        {
+          "CustomTheme": [
+            {
+              "Background-color": "#000000",
+              "Text-color": "#FFFFFF",
+              "Icons-color": "#FFFFFF",
+              "Accent-color": "#0000FF",
+              "Theme-name": "Default theme",
+              "Default-Theme": false
+            },
+            {
+              "Background-color": "#FFFFFF",
+              "Text-color": "#010000",
+              "Icons-color": "#000000",
+              "Accent-color": "#26bae3",
+              "Theme-name": "Light Blue",
+              "Default-Theme": true
+            },
+            {
+              "Background-color": "#21272a",
+              "Text-color": "#fefefe",
+              "Icons-color": "#fefefe",
+              "Accent-color": "#fba43b",
+              "Theme-name": "Dark Yellow",
+              "Default-Theme": false
+            }
+          ]
+        }
+      ],
+      "AppSettings": {
+        "OrginizationName": "Keylogger",
+        "ApplicationName": "Keylogger Company",
+        "OrginizationDormain": "Keylogger.org"
+      }
+    }
+  ],
+  "QtBinding": "PySide6"
+}

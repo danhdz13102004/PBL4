@@ -1,0 +1,44 @@
+{
+  "QPushButton": [
+    {
+      "name": "manageClientsBtn",
+      "icon": "Qss/icons/icons/feather/home.png"
+    },
+    {
+      "name": "showSystemInfoBtn",
+      "icon": "Qss/icons/icons/material_design/computer.png"
+    },
+    {
+      "name": "viewLocationBtn",
+      "icon": "Qss/icons/icons/feather/map.png"
+    },
+    {
+      "name": "settingsBtn",
+      "icon": "Qss/icons/icons/feather/settings.png"
+    },
+    {
+      "name": "helpBtn",
+      "icon": "Qss/icons/icons/feather/help-circle.png"
+    },
+    {
+      "name": "toggleSidebarBtn",
+      "icon": "Qss/icons/icons/feather/menu.png"
+    },
+    {
+      "name": "settingsAppBtn",
+      "icon": "Qss/icons/icons/feather/settings.png"
+    },
+    {
+      "name": "minimizeAppBtn",
+      "icon": "Qss/icons/icons/feather/minus.png"
+    },
+    {
+      "name": "restoreAppBtn",
+      "icon": "Qss/icons/icons/material_design/zoom_out_map.png"
+    },
+    {
+      "name": "closeAppBtn",
+      "icon": "Qss/icons/icons/feather/window_close.png"
+    }
+  ]
+}
